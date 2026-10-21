@@ -37,7 +37,14 @@ async function deliverEnquiry(input: Enquiry) {
         text: content,
       }),
     });
-    if (!response.ok) throw new Error(`Email provider rejected the enquiry (${response.status}).`);
+    if (!response.ok) {
+      const details = await response.text().catch(() => "");
+      console.error("[Resend] Email request rejected:", {
+        status: response.status,
+        details,
+      });
+      throw new Error(`Email provider rejected the enquiry (${response.status}).`);
+    }
     return "email" as const;
   }
 
